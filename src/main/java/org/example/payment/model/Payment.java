@@ -1,113 +1,116 @@
-package org.example.payment.repository;
+package org.example.payment.model;
 
-import org.example.payment.model.Payment;
-import org.example.payment.model.PaymentStatus;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Repository;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
+public class Payment {
+    private String id;
+    private String idempotencyKey;
+    private String sourceAccount;
+    private String destinationAccount;
+    private String reference;
+    private BigDecimal amount;
+    private String currency;
+    private PaymentStatus status;
+    private String errorCode;
+    private String errorMessage;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-@Repository
-public class PaymentRepository {
-
-    private final NamedParameterJdbcTemplate jdbcTemplate;
-
-    public PaymentRepository(NamedParameterJdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public String getId() {
+        return id;
     }
 
-    public void insert(Payment payment) {
-        String sql = """
-                INSERT INTO payments (
-                    id, idempotency_key, source_account, destination_account, reference, amount,
-                    currency, status, error_code, error_message, created_at, updated_at
-                ) VALUES (
-                    :id, :idempotencyKey, :sourceAccount, :destinationAccount, :reference, :amount,
-                    :currency, :status, :errorCode, :errorMessage, :createdAt, :updatedAt
-                )
-                """;
-
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("id", payment.getId())
-                .addValue("idempotencyKey", payment.getIdempotencyKey())
-                .addValue("sourceAccount", payment.getSourceAccount())
-                .addValue("destinationAccount", payment.getDestinationAccount())
-                .addValue("reference", payment.getReference())
-                .addValue("amount", payment.getAmount())
-                .addValue("currency", payment.getCurrency())
-                .addValue("status", payment.getStatus().name())
-                .addValue("errorCode", payment.getErrorCode())
-                .addValue("errorMessage", payment.getErrorMessage())
-                .addValue("createdAt", payment.getCreatedAt())
-                .addValue("updatedAt", payment.getUpdatedAt());
-
-        jdbcTemplate.update(sql, params);
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void update(Payment payment) {
-        String sql = """
-                UPDATE payments
-                SET status = :status,
-                    error_code = :errorCode,
-                    error_message = :errorMessage,
-                    updated_at = :updatedAt
-                WHERE id = :id
-                """;
-
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("id", payment.getId())
-                .addValue("status", payment.getStatus().name())
-                .addValue("errorCode", payment.getErrorCode())
-                .addValue("errorMessage", payment.getErrorMessage())
-                .addValue("updatedAt", payment.getUpdatedAt());
-
-        jdbcTemplate.update(sql, params);
+    public String getIdempotencyKey() {
+        return idempotencyKey;
     }
 
-    public Optional<Payment> findById(String id) {
-        String sql = "SELECT * FROM payments WHERE id = :id";
-        List<Payment> result = jdbcTemplate.query(sql, new MapSqlParameterSource("id", id), new PaymentRowMapper());
-        return result.stream().findFirst();
+    public void setIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
     }
 
-    public Optional<Payment> findByIdempotencyKey(String idempotencyKey) {
-        String sql = "SELECT * FROM payments WHERE idempotency_key = :idempotencyKey";
-        List<Payment> result = jdbcTemplate.query(sql, new MapSqlParameterSource("idempotencyKey", idempotencyKey), new PaymentRowMapper());
-        return result.stream().findFirst();
+    public String getSourceAccount() {
+        return sourceAccount;
     }
 
-    public List<Payment> findAll() {
-        return jdbcTemplate.query("SELECT * FROM payments ORDER BY created_at DESC", new PaymentRowMapper());
+    public void setSourceAccount(String sourceAccount) {
+        this.sourceAccount = sourceAccount;
     }
 
-    public List<Payment> findByStatus(PaymentStatus status) {
-        String sql = "SELECT * FROM payments WHERE status = :status ORDER BY created_at DESC";
-        return jdbcTemplate.query(sql, new MapSqlParameterSource("status", status.name()), new PaymentRowMapper());
+    public String getDestinationAccount() {
+        return destinationAccount;
     }
 
-    private static class PaymentRowMapper implements RowMapper<Payment> {
-        @Override
-        public Payment mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Payment payment = new Payment();
-            payment.setId(rs.getString("id"));
-            payment.setIdempotencyKey(rs.getString("idempotency_key"));
-            payment.setSourceAccount(rs.getString("source_account"));
-            payment.setDestinationAccount(rs.getString("destination_account"));
-            payment.setReference(rs.getString("reference"));
-            payment.setAmount(rs.getBigDecimal("amount"));
-            payment.setCurrency(rs.getString("currency"));
-            payment.setStatus(PaymentStatus.valueOf(rs.getString("status")));
-            payment.setErrorCode(rs.getString("error_code"));
-            payment.setErrorMessage(rs.getString("error_message"));
-            payment.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-            payment.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-            return payment;
-        }
+    public void setDestinationAccount(String destinationAccount) {
+        this.destinationAccount = destinationAccount;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public PaymentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
 
