@@ -1,7 +1,7 @@
 package org.example.payment.repository;
 
-import org.example.payment.model.Payment;
 import org.example.payment.model.PaymentStatus;
+import org.example.payment.model.PaymentStatusHistory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -10,105 +10,59 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-public class PaymentRepository {
+public class PaymentStatusHistoryRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public PaymentRepository(NamedParameterJdbcTemplate jdbcTemplate) {
+    public PaymentStatusHistoryRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void insert(Payment payment) {
+    public void insert(PaymentStatusHistory history) {
         String sql = """
-                INSERT INTO payments (
-                    id, idempotency_key, source_account, destination_account, reference, amount,
-                    currency, status, error_code, error_message, created_at, updated_at
+                INSERT INTO payment_status_history (
+                    payment_id, from_status, to_status, error_code,
+                    error_message, triggered_by, changed_at
                 ) VALUES (
-                    :id, :idempotencyKey, :sourceAccount, :destinationAccount, :reference, :amount,
-                    :currency, :status, :errorCode, :errorMessage, :createdAt, :updatedAt
+                    :paymentId, :fromStatus, :toStatus, :errorCode,
+                    :errorMessage, :triggeredBy, :changedAt
                 )
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("id", payment.getId())
-                .addValue("idempotencyKey", payment.getIdempotencyKey())
-                .addValue("sourceAccount", payment.getSourceAccount())
-                .addValue("destinationAccount", payment.getDestinationAccount())
-                .addValue("reference", payment.getReference())
-                .addValue("amount", payment.getAmount())
-                .addValue("currency", payment.getCurrency())
-                .addValue("status", payment.getStatus().name())
-                .addValue("errorCode", payment.getErrorCode())
-                .addValue("errorMessage", payment.getErrorMessage())
-                .addValue("createdAt", payment.getCreatedAt())
-                .addValue("updatedAt", payment.getUpdatedAt());
+                .addValue("paymentId", history.getPaymentId())
+                .addValue("fromStatus", history.getFromStatus() == null ? null : history.getFromStatus().name())
+                .addValue("toStatus", history.getToStatus().name())
+                .addValue("errorCode", history.getErrorCode())
+                .addValue("errorMessage", history.getErrorMessage())
+                .addValue("triggeredBy", history.getTriggeredBy())
+                .addValue("changedAt", history.getChangedAt());
 
         jdbcTemplate.update(sql, params);
     }
 
-    public void update(Payment payment) {
-        String sql = """
-                UPDATE payments
-                SET status = :status,
-                    error_code = :errorCode,
-                    error_message = :errorMessage,
-                    updated_at = :updatedAt
-                WHERE id = :id
-                """;
-
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("id", payment.getId())
-                .addValue("status", payment.getStatus().name())
-                .addValue("errorCode", payment.getErrorCode())
-                .addValue("errorMessage", payment.getErrorMessage())
-                .addValue("updatedAt", payment.getUpdatedAt());
-
-        jdbcTemplate.update(sql, params);
+    public List<PaymentStatusHistory> findByPaymentId(String paymentId) {
+        String sql = "SELECT * FROM payment_status_history WHERE payment_id = :paymentId ORDER BY changed_at ASC";
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("paymentId", paymentId), new PaymentStatusHistoryRowMapper());
     }
 
-    public Optional<Payment> findById(String id) {
-        String sql = "SELECT * FROM payments WHERE id = :id";
-        List<Payment> result = jdbcTemplate.query(sql, new MapSqlParameterSource("id", id), new PaymentRowMapper());
-        return result.stream().findFirst();
-    }
-
-    public Optional<Payment> findByIdempotencyKey(String idempotencyKey) {
-        String sql = "SELECT * FROM payments WHERE idempotency_key = :idempotencyKey";
-        List<Payment> result = jdbcTemplate.query(sql, new MapSqlParameterSource("idempotencyKey", idempotencyKey), new PaymentRowMapper());
-        return result.stream().findFirst();
-    }
-
-    public List<Payment> findAll() {
-        return jdbcTemplate.query("SELECT * FROM payments ORDER BY created_at DESC", new PaymentRowMapper());
-    }
-
-    public List<Payment> findByStatus(PaymentStatus status) {
-        String sql = "SELECT * FROM payments WHERE status = :status ORDER BY created_at DESC";
-        return jdbcTemplate.query(sql, new MapSqlParameterSource("status", status.name()), new PaymentRowMapper());
-    }
-
-    private static class PaymentRowMapper implements RowMapper<Payment> {
+    private static class PaymentStatusHistoryRowMapper implements RowMapper<PaymentStatusHistory> {
         @Override
-        public Payment mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Payment payment = new Payment();
-            payment.setId(rs.getString("id"));
-            payment.setIdempotencyKey(rs.getString("idempotency_key"));
-            payment.setSourceAccount(rs.getString("source_account"));
-            payment.setDestinationAccount(rs.getString("destination_account"));
-            payment.setReference(rs.getString("reference"));
-            payment.setAmount(rs.getBigDecimal("amount"));
-            payment.setCurrency(rs.getString("currency"));
-            payment.setStatus(PaymentStatus.valueOf(rs.getString("status")));
-            payment.setErrorCode(rs.getString("error_code"));
-            payment.setErrorMessage(rs.getString("error_message"));
-            payment.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-            payment.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-            return payment;
+        public PaymentStatusHistory mapRow(ResultSet rs, int rowNum) throws SQLException {
+            PaymentStatusHistory history = new PaymentStatusHistory();
+            history.setId(rs.getLong("id"));
+            history.setPaymentId(rs.getString("payment_id"));
+            String fromStatus = rs.getString("from_status");
+            history.setFromStatus(fromStatus == null ? null : PaymentStatus.valueOf(fromStatus));
+            history.setToStatus(PaymentStatus.valueOf(rs.getString("to_status")));
+            history.setErrorCode(rs.getString("error_code"));
+            history.setErrorMessage(rs.getString("error_message"));
+            history.setTriggeredBy(rs.getString("triggered_by"));
+            history.setChangedAt(rs.getTimestamp("changed_at").toLocalDateTime());
+            return history;
         }
     }
 }
-
 
