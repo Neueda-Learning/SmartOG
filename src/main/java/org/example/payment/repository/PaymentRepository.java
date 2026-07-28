@@ -93,6 +93,28 @@ public class PaymentRepository {
         return jdbcTemplate.query(sql, new MapSqlParameterSource("status", status.name()), new PaymentRowMapper());
     }
 
+    public List<Payment> findByAccountNumber(String accountNumber) {
+        String sql = """
+                SELECT * FROM payments
+                WHERE source_account = :accountNumber OR destination_account = :accountNumber
+                ORDER BY created_at DESC
+                """;
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("accountNumber", accountNumber), new PaymentRowMapper());
+    }
+
+    public List<Payment> findByAccountNumberAndStatus(String accountNumber, PaymentStatus status) {
+        String sql = """
+                SELECT * FROM payments
+                WHERE (source_account = :accountNumber OR destination_account = :accountNumber)
+                  AND status = :status
+                ORDER BY created_at DESC
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("accountNumber", accountNumber)
+                .addValue("status", status.name());
+        return jdbcTemplate.query(sql, params, new PaymentRowMapper());
+    }
+
     private static class PaymentRowMapper implements RowMapper<Payment> {
         @Override
         public Payment mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -113,6 +135,3 @@ public class PaymentRepository {
             return payment;
         }
     }
-}
-
-
