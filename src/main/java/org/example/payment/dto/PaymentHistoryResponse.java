@@ -4,6 +4,7 @@ import org.example.payment.model.PaymentStatus;
 
 import java.time.LocalDateTime;
 
+/** API response payload for one payment status transition record. */
 public record PaymentHistoryResponse(
         Long id,
         String paymentId,
@@ -15,4 +16,3 @@ public record PaymentHistoryResponse(
         LocalDateTime changedAt
 ) {
 }
-
