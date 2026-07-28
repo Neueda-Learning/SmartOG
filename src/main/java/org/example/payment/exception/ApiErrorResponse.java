@@ -1,4 +1,4 @@
-package org.example.payment.excpetion;
+package org.example.payment.exception;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package org.example.payment.excpetion;
+package org.example.payment.exception;
 
 public class BusinessException extends RuntimeException {
     private final ErrorCode errorCode;
