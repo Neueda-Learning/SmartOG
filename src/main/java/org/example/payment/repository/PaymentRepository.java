@@ -25,10 +25,10 @@ public class PaymentRepository {
         String sql = """
                 INSERT INTO payments (
                     id, idempotency_key, source_account, destination_account, reference, amount,
-                    currency, status, error_code, error_message, created_at, updated_at
+                    currency, status, error_code, error_message, created_at, updated_at, settlement_reference
                 ) VALUES (
                     :id, :idempotencyKey, :sourceAccount, :destinationAccount, :reference, :amount,
-                    :currency, :status, :errorCode, :errorMessage, :createdAt, :updatedAt
+                    :currency, :status, :errorCode, :errorMessage, :createdAt, :updatedAt, :settlementReference
                 )
                 """;
 
@@ -44,7 +44,8 @@ public class PaymentRepository {
                 .addValue("errorCode", payment.getErrorCode())
                 .addValue("errorMessage", payment.getErrorMessage())
                 .addValue("createdAt", payment.getCreatedAt())
-                .addValue("updatedAt", payment.getUpdatedAt());
+                .addValue("updatedAt", payment.getUpdatedAt())
+                .addValue("settlementReference", payment.getSettlementReference());
 
         jdbcTemplate.update(sql, params);
     }
@@ -55,7 +56,8 @@ public class PaymentRepository {
                 SET status = :status,
                     error_code = :errorCode,
                     error_message = :errorMessage,
-                    updated_at = :updatedAt
+                    updated_at = :updatedAt,
+                    settlement_reference = :settlementReference
                 WHERE id = :id
                 """;
 
@@ -64,7 +66,8 @@ public class PaymentRepository {
                 .addValue("status", payment.getStatus().name())
                 .addValue("errorCode", payment.getErrorCode())
                 .addValue("errorMessage", payment.getErrorMessage())
-                .addValue("updatedAt", payment.getUpdatedAt());
+                .addValue("updatedAt", payment.getUpdatedAt())
+                .addValue("settlementReference", payment.getSettlementReference());
 
         jdbcTemplate.update(sql, params);
     }
@@ -106,6 +109,7 @@ public class PaymentRepository {
             payment.setErrorMessage(rs.getString("error_message"));
             payment.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
             payment.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+            payment.setSettlementReference(rs.getString("settlement_reference"));
             return payment;
         }
     }
