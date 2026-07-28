@@ -15,6 +15,15 @@ spring:
 server:
   port: 8080
 
+# New: openexchangerates.org integration used during the "validate" step to
+# convert the payment amount into USD for the balance check.
+openexchangerates:
+  app-id: ${OPEN_EXCHANGE_RATES_APP_ID:05b55aac70a14b4480dd902f060350b0}
+
+
+
+
+
 
 
 
