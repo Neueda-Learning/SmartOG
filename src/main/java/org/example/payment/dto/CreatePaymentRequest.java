@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+/** API request payload for creating a payment. */
 public record CreatePaymentRequest(
         @NotBlank(message = "idempotencyKey is required")
         @Size(max = 64, message = "idempotencyKey max length is 64")
@@ -35,4 +36,3 @@ public record CreatePaymentRequest(
         String reference
 ) {
 }
-
