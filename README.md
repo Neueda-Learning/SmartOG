@@ -472,8 +472,3 @@ docker-compose up
 mvn spring-boot:run
 ```
 
-
-git status
-git add README.md
-git commit -m "docs: update README with latest backend changes"
-git push origin main
