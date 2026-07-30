@@ -322,7 +322,7 @@ public class PaymentService {
 
         // Write audit history so every transition is traceable
         addHistory(payment.getId(), fromStatus, targetStatus, errorCode, errorMessage, triggeredBy);
-        return payment;
+
     }
 
     /**
