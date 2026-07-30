@@ -4,6 +4,16 @@ import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
+/**
+ * Request payload for creating a new payment.
+ *
+ * @param idempotencyKey unique key to prevent duplicate payment creation
+ * @param sourceAccount source account number
+ * @param destinationAccount destination account number
+ * @param amount transfer amount
+ * @param currency payment currency in ISO-4217 format
+ * @param reference optional payment reference
+ */
 public record CreatePaymentRequest(
         @NotBlank(message = "idempotencyKey is required")
         @Size(max = 64, message = "idempotencyKey max length is 64")
