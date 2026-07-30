@@ -44,7 +44,7 @@ public class PaymentController {
 
     /**
      * Creates a payment.
-     * Returns 201 when newly created, or 200 when idempotency key already exists.
+     * Returns 201 when newly created, or 200 when idempotency key already exists..
      */
     @PostMapping
     public ResponseEntity<PaymentResponse> create(@Valid @RequestBody CreatePaymentRequest request) {
