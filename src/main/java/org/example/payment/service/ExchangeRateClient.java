@@ -9,12 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
 
-/**
- * Thin client around the openexchangerates.org "latest" endpoint.
- * The free tier always returns rates with USD as the base currency
- * (i.e. "1 USD = rate * targetCurrency"), so to convert an amount that is
- * denominated in a non-USD currency into USD we invert the published rate.
- */
+
 @Component
 public class ExchangeRateClient {
 
