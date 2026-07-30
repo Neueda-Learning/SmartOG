@@ -267,8 +267,6 @@ public class PaymentService {
      *   <li>Source and destination accounts must differ.</li>
      *   <li>Currency must be one of USD, EUR, or GBP.</li>
      * </ul>
-     *
-     *
      * @param request the request to validate
      * @throws BusinessException if any rule is violated
      */
@@ -355,13 +353,7 @@ public class PaymentService {
         historyRepository.insert(history);
     }
 
-    /**
-     * Result wrapper for {@link #createPayment}.
-     *
-     * @param payment the payment object (new or existing)
-     * @param created {@code true} if this request created a brand-new payment;
-     *                {@code false} if an existing record was returned due to idempotency
-     */
+
     public record CreatePaymentResult(Payment payment, boolean created) {
     }
 }
