@@ -2,6 +2,7 @@ package org.example.payment.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -18,12 +19,15 @@ import java.util.Map;
 public class ExchangeRateClient {
 
     private final RestTemplate restTemplate;
+    private final String appId;
 
-    @Value("${openexchangerates.app-id:05b55aac70a14b4480dd902f060350b0}")
-    private String appId;
-
-    public ExchangeRateClient(RestTemplate restTemplate) {
+    public ExchangeRateClient(
+            RestTemplate restTemplate,
+            @Value("${openexchangerates.app-id:}") String appId
+    ) {
         this.restTemplate = restTemplate;
+        Assert.hasText(appId, "Missing configuration: openexchangerates.app-id or OPENEXCHANGERATES_APP_ID");
+        this.appId = appId;
     }
 
     /**
