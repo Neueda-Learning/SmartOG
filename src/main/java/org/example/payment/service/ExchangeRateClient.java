@@ -25,6 +25,11 @@ public class ExchangeRateClient {
         this.appId = appId;
     }
 
+    /**
+     * Returns the multiplier to convert 1 unit of {@code fromCurrency} into USD.
+     * Returns {@link BigDecimal#ONE} when {@code fromCurrency} is already USD,
+     * since the account balance table defaults to USD.
+     */
     @SuppressWarnings("unchecked")
     public BigDecimal getRateToUsd(String fromCurrency) {
         if (fromCurrency == null || "USD".equalsIgnoreCase(fromCurrency)) {
