@@ -2,6 +2,9 @@ package org.example.payment.exception;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * Application error codes mapped to HTTP status values.
+ */
 public enum ErrorCode {
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST),
     INSUFFICIENT_FUNDS(HttpStatus.BAD_REQUEST),
@@ -20,6 +23,9 @@ public enum ErrorCode {
         this.httpStatus = httpStatus;
     }
 
+    /**
+     * Returns the HTTP status used for this error code.
+     */
     public HttpStatus getHttpStatus() {
         return httpStatus;
     }

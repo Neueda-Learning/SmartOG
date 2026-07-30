@@ -10,15 +10,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+/**
+ * Handles exceptions globally and returns unified API error responses.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Handles known business exceptions.
+     */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiErrorResponse> handleBusiness(BusinessException ex) {
         return ResponseEntity.status(ex.getErrorCode().getHttpStatus())
                 .body(new ApiErrorResponse(ex.getErrorCode().name(), ex.getMessage(), LocalDateTime.now()));
     }
 
+    /**
+     * Handles request validation failures.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult()
@@ -31,6 +40,9 @@ public class GlobalExceptionHandler {
                 .body(new ApiErrorResponse(ErrorCode.VALIDATION_FAILED.name(), message, LocalDateTime.now()));
     }
 
+    /**
+     * Handles unexpected server errors.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
