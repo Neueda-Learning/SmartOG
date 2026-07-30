@@ -29,9 +29,6 @@ import java.util.UUID;
  * All status changes are validated by {@link PaymentStateMachine} to enforce
  * the allowed transition rules, and every transition is recorded in
  * {@link org.example.payment.model.PaymentStatusHistory} for a full audit trail.
- *
- * <p>Supported currencies: USD, EUR, GBP (see {@code SUPPORTED_CURRENCIES}).
- *
  * <p>Idempotency: {@link #createPayment} uses {@code idempotencyKey} to ensure
  * the same request never creates duplicate payments.
  */
