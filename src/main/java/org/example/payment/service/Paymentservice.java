@@ -267,7 +267,6 @@ public class PaymentService {
      *   <li>Source and destination accounts must differ.</li>
      *   <li>Currency must be one of USD, EUR, or GBP.</li>
      * </ul>
-     *
      * @param request the request to validate
      * @throws BusinessException if any rule is violated
      */
